@@ -1,0 +1,75 @@
+@MultiTenantInventoryApi_HostAddress = http://localhost:5222
+
+
+### Create a new item for tenant "beta-supply"
+POST http://localhost:5222/api/items
+Content-Type: application/json
+X-Tenant-ID: beta-supply
+
+{
+  "name": "Safety Helmet",
+  "category": "Safety"
+}
+
+
+### Checkout item 2 for tenant "beta-supply"
+POST http://localhost:5222/api/items/2/checkout
+Content-Type: application/json
+X-Tenant-ID: beta-supply
+
+{
+  "username": "john.smith"
+}
+
+
+
+### Checkin item 2 for tenant "alpha-logistics"
+POST http://localhost:5222/api/items/2/checkin
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+
+{
+  "username": "jane.doe"
+}
+
+### Checkout item 5 for tenant "alpha-logistics"
+
+POST http://localhost:5222/api/items/5/checkout
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+{
+  "username": "jane.doe"
+}
+
+###
+
+### Create a new item for tenant "alpha-logistics"
+POST http://localhost:5222/api/items
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+
+{
+  "name": "Industrial Drill",
+  "category": "Tools"
+}
+
+###
+
+### Get all items for tenant "alpha-logistics"
+GET http://localhost:5222/api/items
+X-Tenant-ID: alpha-logistics
+
+### Get all items for tenant "beta-supply"
+GET http://localhost:5222/api/items
+X-Tenant-ID: beta-supply
+
+###
+
+DELETE http://localhost:5222/api/items/2
+X-Tenant-ID: alpha-logistics
+
+
+###
+
+GET http://localhost:5222/api/items/SpecialReport
+X-Tenant-ID: alpha-logistics

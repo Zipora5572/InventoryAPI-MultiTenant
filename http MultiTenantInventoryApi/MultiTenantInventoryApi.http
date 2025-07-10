@@ -1,0 +1,105 @@
+@MultiTenantInventoryApi_HostAddress = http://localhost:5222
+
+### Create a new item for tenant "beta-supply"
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items
+Content-Type: application/json
+X-Tenant-ID: beta-supply
+
+{
+  "name": "Safety Helmet",
+  "category": "Safety"
+}
+
+### Checkout item 67890 for tenant "beta-supply" (should fail if checkout is disabled for this tenant)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items/67890/checkout
+Content-Type: application/json
+X-Tenant-ID: beta-supply
+
+{
+  "username": "john.smith"
+}
+
+### Checkin item 12345 for tenant "alpha-logistics"
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items/12345/checkin
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+
+{
+  "username": "jane.doe"
+}
+
+### List all items for tenant "alpha-logistics"
+GET {{MultiTenantInventoryApi_HostAddress}}/api/items
+X-Tenant-ID: alpha-logistics
+
+### List all items for tenant "beta-supply"
+GET {{MultiTenantInventoryApi_HostAddress}}/api/items
+X-Tenant-ID: beta-supply
+
+### Create a new item for tenant "alpha-logistics" (allowed category)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+
+{
+  "name": "Forklift",
+  "category": "Machinery"
+}
+
+### Create a new item for tenant "beta-supply" (disallowed category, should fail if only Electronics allowed)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items
+Content-Type: application/json
+X-Tenant-ID: beta-supply
+
+{
+  "name": "Work Gloves",
+  "category": "Safety"
+}
+
+### Create a new item for tenant "beta-supply" (allowed category)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items
+Content-Type: application/json
+X-Tenant-ID: beta-supply
+
+{
+  "name": "Barcode Scanner",
+  "category": "Electronics"
+}
+
+### Checkout item 20001 for tenant "alpha-logistics" (should succeed if under max items per user)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items/20001/checkout
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+
+{
+  "username": "jane.doe"
+}
+
+### Checkout item 20002 for tenant "alpha-logistics" (should fail if user exceeds max items per user)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items/20002/checkout
+Content-Type: application/json
+X-Tenant-ID: alpha-logistics
+
+{
+  "username": "jane.doe"
+}
+
+### Soft delete item 20001 for tenant "alpha-logistics"
+DELETE {{MultiTenantInventoryApi_HostAddress}}/api/items/20001
+X-Tenant-ID: alpha-logistics
+
+### Soft delete item 67890 for tenant "beta-supply"
+DELETE {{MultiTenantInventoryApi_HostAddress}}/api/items/67890
+X-Tenant-ID: beta-supply
+
+### Attempt to access with missing tenant header (should return 401)
+GET {{MultiTenantInventoryApi_HostAddress}}/api/items
+
+### Attempt to checkout with invalid tenant (should return 401)
+POST {{MultiTenantInventoryApi_HostAddress}}/api/items/12345/checkout
+Content-Type: application/json
+X-Tenant-ID: unknown-tenant
+
+{
+  "username": "jane.doe"
+}
