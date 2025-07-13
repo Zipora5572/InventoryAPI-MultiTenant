@@ -24,6 +24,37 @@ public class ItemService(
         }
     }
 
+    public async Task<ItemResponse?> UpdateItemAsync(string tenantId, int itemId, UpdateItemRequest request)
+    {
+        try
+        {
+            var item = await _repo.Items.GetByIdAsync(itemId);
+
+            if (item == null || item.TenantId != tenantId || !item.IsActive)
+            {
+                _logger.LogWarning("Update failed: item {ItemId} not found or inactive (tenant {TenantId})", itemId, tenantId);
+                return null;
+            }
+
+            var updatedItem = item with
+            {
+                Name = request.Name ?? item.Name,
+                Category = request.Category ?? item.Category,
+            };
+
+            await _repo.Items.UpdateAsync(itemId, updatedItem);
+            await _repo.SaveAsync();
+
+            _logger.LogInformation("Update success: item {ItemId} updated (tenant {TenantId})", itemId, tenantId);
+            return _mapper.Map<ItemResponse>(updatedItem);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "UpdateItemAsync failed for item {ItemId}, tenant {TenantId}", itemId, tenantId);
+            throw;
+        }
+    }
+
     public async Task<List<ItemResponse>> GetItemsAsync(string tenantId)
     {
         try

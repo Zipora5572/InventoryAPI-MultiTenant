@@ -1,4 +1,6 @@
-﻿namespace MultiTenantInventoryApi.Extensions;
+﻿using MultiTenantInventoryApi.Contracts.IServices;
+
+namespace MultiTenantInventoryApi.Extensions;
 
 public static class ServicesExtension
 {
@@ -28,6 +30,7 @@ public static class ServicesExtension
 
         builder.Services.AddScoped<IItemService, ItemService>();
         builder.Services.AddScoped<IItemRepository, ItemRepository>();
+        builder.Services.AddScoped<ITenantRepository, TenantRepository>();
         builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());

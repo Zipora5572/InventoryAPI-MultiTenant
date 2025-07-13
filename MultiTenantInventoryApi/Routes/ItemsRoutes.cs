@@ -10,6 +10,7 @@ public static class ItemRoutes
         itemsGroup.MapPost("", Create);
         itemsGroup.MapPost("{id}/checkout", Checkout);
         itemsGroup.MapPost("{id}/checkin", Checkin);
+        itemsGroup.MapPut("{id}", Update);
         itemsGroup.MapDelete("{id}", SoftDelete);
         itemsGroup.MapGet("SpecialReport", SpecialReport);
 
@@ -34,6 +35,21 @@ public static class ItemRoutes
         var itemResponse = await itemService.CreateItemAsync(tenantId, request);
         return TypedResults.Created($"/api/items/{itemResponse.Id}", itemResponse);
     }
+
+    static async Task<Results<Ok<ItemResponse>, NotFound>> Update(
+    int id,
+    UpdateItemRequest request,
+    IItemService itemService,
+    ITenantProvider tenantProvider)
+    {
+        var tenantId = tenantProvider.TenantId;
+        var updated = await itemService.UpdateItemAsync(tenantId, id, request);
+
+        return updated is not null
+            ? TypedResults.Ok(updated)
+            : TypedResults.NotFound();
+    }
+
 
     static async Task<Results<Ok<ItemResponse>, BadRequest<string>>> Checkout(
         int id,
