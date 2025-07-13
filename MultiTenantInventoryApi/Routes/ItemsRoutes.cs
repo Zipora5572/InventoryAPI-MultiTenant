@@ -1,8 +1,4 @@
-﻿using MultiTenantInventoryApi.Contracts;
-using MultiTenantInventoryApi.Model.DTOs.Requests;
-using MultiTenantInventoryApi.Model.DTOs.Responses;
-
-namespace MultiTenantInventoryApi.Routes;
+﻿namespace MultiTenantInventoryApi.Routes;
 
 public static class ItemRoutes
 {
@@ -21,20 +17,20 @@ public static class ItemRoutes
     }
 
     static async Task<Ok<List<ItemResponse>>> GetAll(
-        HttpContext httpContext,
-        IItemService itemService)
+        IItemService itemService,
+        ITenantProvider tenantProvider)
     {
-        var tenantId = httpContext.GetTenantId();
+        var tenantId = tenantProvider.TenantId;
         var items = await itemService.GetItemsAsync(tenantId);
         return TypedResults.Ok(items);
     }
 
     static async Task<Created<ItemResponse>> Create(
         CreateItemRequest request,
-        HttpContext httpContext,
-        IItemService itemService)
+        IItemService itemService,
+        ITenantProvider tenantProvider)
     {
-        var tenantId = httpContext.GetTenantId();
+        var tenantId = tenantProvider.TenantId;
         var itemResponse = await itemService.CreateItemAsync(tenantId, request);
         return TypedResults.Created($"/api/items/{itemResponse.Id}", itemResponse);
     }
@@ -42,11 +38,11 @@ public static class ItemRoutes
     static async Task<Results<Ok<ItemResponse>, BadRequest<string>>> Checkout(
         int id,
         CheckoutItemRequest request,
-        HttpContext httpContext,
-        IItemService itemService)
+        IItemService itemService,
+        ITenantProvider tenantProvider)
     {
-        var tenantId = httpContext.GetTenantId();
-        var settings = httpContext.GetTenantSettings();
+        var tenantId = tenantProvider.TenantId;
+        var settings = tenantProvider.Settings;
 
         var result = await itemService.CheckoutItemAsync(tenantId, id, request, settings);
         if (result == null)
@@ -58,10 +54,10 @@ public static class ItemRoutes
     static async Task<Results<Ok<ItemResponse>, BadRequest<string>>> Checkin(
         int id,
         CheckinItemRequest request,
-        HttpContext httpContext,
-        IItemService itemService)
+        IItemService itemService,
+        ITenantProvider tenantProvider)
     {
-        var tenantId = httpContext.GetTenantId();
+        var tenantId = tenantProvider.TenantId;
 
         var result = await itemService.CheckinItemAsync(tenantId, id, request);
         if (result == null)
@@ -72,27 +68,30 @@ public static class ItemRoutes
 
     static async Task<Results<NoContent, NotFound>> SoftDelete(
         int id,
-        HttpContext httpContext,
-        IItemService itemService)
+        IItemService itemService,
+        ITenantProvider tenantProvider)
     {
-        var tenantId = httpContext.GetTenantId();
-
+        var tenantId = tenantProvider.TenantId;
         var deleted = await itemService.SoftDeleteItemAsync(tenantId, id);
         return deleted
             ? TypedResults.NoContent()
             : TypedResults.NotFound();
     }
 
-    static async Task<Results<Ok<string>, BadRequest<string>>> SpecialReport(
-        HttpContext httpContext)
+    static Task<Results<Ok<string>, BadRequest<string>>> SpecialReport(
+        ITenantProvider tenantProvider)
     {
-        var tenantId = httpContext.GetTenantId();
-        var settings = httpContext.GetTenantSettings();
+        var tenantId = tenantProvider.TenantId;
+        var settings = tenantProvider.Settings;
 
         if (settings.Features?.SpecialReport != true)
-            return TypedResults.BadRequest("SpecialReport feature is not enabled for this tenant.");
+            return Task.FromResult<Results<Ok<string>, BadRequest<string>>>(
+                TypedResults.BadRequest("SpecialReport feature is not enabled for this tenant.")
+            );
 
         var report = $"Special report for tenant {tenantId} generated at {DateTime.UtcNow}";
-        return TypedResults.Ok(report);
+        return Task.FromResult<Results<Ok<string>, BadRequest<string>>>(
+            TypedResults.Ok(report)
+        );
     }
 }

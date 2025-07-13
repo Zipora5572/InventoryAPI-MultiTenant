@@ -1,8 +1,6 @@
-﻿using MultiTenantInventoryApi.Contracts;
+﻿namespace MultiTenantInventoryApi.Data.Repository;
 
-namespace MultiTenantInventoryApi.Data.Repository;
-
-public class Repository<T>(IDataContext _context) : IRepository<T> where T : class
+public class Repository<T>(DataContext _context) : IRepository<T> where T : class
 {
     protected readonly DbSet<T> _dbSet = _context.Set<T>();
 

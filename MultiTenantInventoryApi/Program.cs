@@ -1,5 +1,3 @@
-using MultiTenantInventoryApi.Middleware;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
@@ -16,11 +14,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
 app.UseErrorHandlingMiddleware();
 
 app.UseTenantResolutionMiddleware();
 
-app.UseCors();
 app.MapItemRoutes();
 
 app.Run();

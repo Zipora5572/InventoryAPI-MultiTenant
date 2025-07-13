@@ -1,23 +1,14 @@
-﻿using System.Text.Json;
+﻿namespace MultiTenantInventoryApi.Middleware;
 
-namespace MultiTenantInventoryApi.Middleware;
-
-public class ErrorHandlingMiddleware
+public class ErrorHandlingMiddleware(
+    RequestDelegate _next,
+    ILogger<ErrorHandlingMiddleware> _logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ErrorHandlingMiddleware> _logger;
-
-    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next(context); 
+            await _next(context);
         }
         catch (Exception ex)
         {
@@ -29,7 +20,7 @@ public class ErrorHandlingMiddleware
                 context.Request.Path,
                 context.TraceIdentifier);
 
-            context.Response.StatusCode = 500;
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Response.ContentType = "application/json";
 
             var errorResponse = new
@@ -42,8 +33,8 @@ public class ErrorHandlingMiddleware
             await context.Response.WriteAsync(json);
         }
     }
-   
 }
+
 public static class ErrorHandlingMiddlewareExtensions
 {
     public static IApplicationBuilder UseErrorHandlingMiddleware(this IApplicationBuilder app)

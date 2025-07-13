@@ -1,6 +1,4 @@
-﻿using MultiTenantInventoryApi.Contracts;
-
-namespace MultiTenantInventoryApi.Extensions;
+﻿namespace MultiTenantInventoryApi.Extensions;
 
 public static class ServicesExtension
 {
@@ -21,8 +19,11 @@ public static class ServicesExtension
             .AllowAnyMethod()
         ));
 
-        builder.Services.AddDbContext<IDataContext, DataContext>(options =>
+        builder.Services.AddDbContext<DataContext>(options =>
                 options.UseSqlite("Data Source=inventory.db"));
+
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 
         builder.Services.AddScoped<IItemService, ItemService>();

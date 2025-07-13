@@ -1,8 +1,4 @@
-﻿using MultiTenantInventoryApi.Contracts;
-using MultiTenantInventoryApi.Model.DTOs.Requests;
-using MultiTenantInventoryApi.Model.DTOs.Responses;
-
-namespace MultiTenantInventoryApi.Services;
+﻿namespace MultiTenantInventoryApi.Services;
 
 public class ItemService(
     IRepositoryManager _repo,

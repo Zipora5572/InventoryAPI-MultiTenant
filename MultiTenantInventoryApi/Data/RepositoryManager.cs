@@ -1,9 +1,7 @@
-﻿using MultiTenantInventoryApi.Contracts;
-
-namespace MultiTenantInventoryApi.Data;
+﻿namespace MultiTenantInventoryApi.Data;
 
 public class RepositoryManager(
-    IDataContext _context,
+    DataContext _context,
     IItemRepository itemRepository
 ) : IRepositoryManager
 {
