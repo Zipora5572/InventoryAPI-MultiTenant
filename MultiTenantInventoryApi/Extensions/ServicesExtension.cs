@@ -1,4 +1,6 @@
-﻿namespace MultiTenantInventoryApi.Extensions;
+﻿using MultiTenantInventoryApi.Contracts;
+
+namespace MultiTenantInventoryApi.Extensions;
 
 public static class ServicesExtension
 {

@@ -1,4 +1,7 @@
-﻿namespace MultiTenantInventoryApi.Services;
+﻿using MultiTenantInventoryApi.Model.DTOs.Requests;
+using MultiTenantInventoryApi.Model.DTOs.Responses;
+
+namespace MultiTenantInventoryApi.Contracts;
 
 
 public interface IItemService

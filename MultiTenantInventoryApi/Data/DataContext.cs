@@ -1,5 +1,7 @@
 ﻿
 
+using MultiTenantInventoryApi.Contracts;
+
 namespace MultiTenantInventoryApi.Data;
 
 public class DataContext:DbContext, IDataContext

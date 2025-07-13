@@ -1,15 +1,10 @@
-﻿namespace MultiTenantInventoryApi.Data.Repository;
+﻿using MultiTenantInventoryApi.Contracts;
 
-public class Repository<T> : IRepository<T> where T : class
+namespace MultiTenantInventoryApi.Data.Repository;
+
+public class Repository<T>(IDataContext _context) : IRepository<T> where T : class
 {
-    protected readonly DbSet<T> _dbSet;
-    private readonly IDataContext _context;
-
-    public Repository(IDataContext context)
-    {
-        _context = context;
-        _dbSet = _context.Set<T>();
-    }
+    protected readonly DbSet<T> _dbSet = _context.Set<T>();
 
     public async Task<T> AddAsync(T entity)
     {
@@ -27,7 +22,6 @@ public class Repository<T> : IRepository<T> where T : class
     {
         return _dbSet.AsQueryable();
     }
-
 
     public async Task<T?> GetByIdAsync(int id)
     {

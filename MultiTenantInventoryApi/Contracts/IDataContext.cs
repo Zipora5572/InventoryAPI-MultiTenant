@@ -1,4 +1,4 @@
-﻿namespace MultiTenantInventoryApi.Data;
+﻿namespace MultiTenantInventoryApi.Contracts;
 
 public interface IDataContext
 {
