@@ -1,20 +1,11 @@
-﻿
-namespace MultiTenantInventoryApi.Data;
+﻿namespace MultiTenantInventoryApi.Data;
 
-public class RepositoryManager : IRepositoryManager
+public class RepositoryManager(
+    DataContext _context,
+    IItemRepository itemRepository
+) : IRepositoryManager
 {
-    private readonly IDataContext _context;
-
-    public IItemRepository Items { get; }
-
-    public RepositoryManager(
-    IDataContext context,
-        IItemRepository itemRepository
-       )
-    {
-        _context = context;
-        Items = itemRepository;
-    }
+    public IItemRepository Items { get; } = itemRepository;
 
     public async Task SaveAsync()
     {

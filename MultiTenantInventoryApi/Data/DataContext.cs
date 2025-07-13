@@ -1,13 +1,6 @@
-﻿
+﻿namespace MultiTenantInventoryApi.Data;
 
-namespace MultiTenantInventoryApi.Data;
-
-public class DataContext:DbContext, IDataContext
+public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
     public DbSet<Item> Items => Set<Item>();
-
-    public DataContext(DbContextOptions<DataContext> options)
-        : base(options)
-    {
-    }
 }

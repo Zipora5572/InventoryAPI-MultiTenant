@@ -1,4 +1,4 @@
-﻿namespace MultiTenantInventoryApi.Contracts.Responses;
+﻿namespace MultiTenantInventoryApi.Model.DTOs.Responses;
 
 public record ItemResponse(
     int Id,

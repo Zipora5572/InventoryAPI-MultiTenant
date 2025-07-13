@@ -13,9 +13,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseTenantResolutionMiddleware();
 
 app.UseCors();
+
+app.UseErrorHandlingMiddleware();
+
+app.UseTenantResolutionMiddleware();
+
 app.MapItemRoutes();
 
 app.Run();

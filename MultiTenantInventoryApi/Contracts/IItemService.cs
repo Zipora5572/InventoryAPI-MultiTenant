@@ -1,4 +1,4 @@
-﻿namespace MultiTenantInventoryApi.Services;
+﻿namespace MultiTenantInventoryApi.Contracts;
 
 
 public interface IItemService

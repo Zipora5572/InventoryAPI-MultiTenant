@@ -1,6 +1,5 @@
-﻿namespace MultiTenantInventoryApi.Contracts.IRepositories
+﻿namespace MultiTenantInventoryApi.Contracts.IRepositories;
+
+public interface IItemRepository : IRepository<Item>
 {
-    public interface IItemRepository : IRepository<Item>
-    {
-    }
 }

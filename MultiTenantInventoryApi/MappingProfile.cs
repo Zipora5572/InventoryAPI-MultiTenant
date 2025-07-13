@@ -1,4 +1,7 @@
-﻿namespace MultiTenantInventoryApi;
+﻿using MultiTenantInventoryApi.Model.DTOs.Requests;
+using MultiTenantInventoryApi.Model.DTOs.Responses;
+
+namespace MultiTenantInventoryApi;
 
 
 public class MappingProfile : Profile

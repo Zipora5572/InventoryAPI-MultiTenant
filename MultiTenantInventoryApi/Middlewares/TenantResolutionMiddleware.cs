@@ -1,45 +1,38 @@
 ﻿namespace MultiTenantInventoryApi.Middlewares;
 
-public class TenantResolutionMiddleware
+public class TenantResolutionMiddleware(
+    RequestDelegate _next,
+    ILogger<TenantResolutionMiddleware> _logger,
+    IOptions<Dictionary<string, TenantSettings>> _tenantOptions)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<TenantResolutionMiddleware> _logger;
-    private readonly IOptions<Dictionary<string, TenantSettings>> _tenantOptions;
+    private const string TenantIdKey = "TenantId";
+    private const string TenantSettingsKey = "TenantSettings";
 
-    public TenantResolutionMiddleware(
-        RequestDelegate next,
-        ILogger<TenantResolutionMiddleware> logger,
-        IOptions<Dictionary<string, TenantSettings>> tenantOptions)
+    public async Task Invoke(HttpContext context)
     {
-        _next = next;
-        _logger = logger;
-        _tenantOptions = tenantOptions;
-    }
-
-    public async Task Invoke(HttpContext httpContext)
-    {
-        if (!httpContext.Request.Headers.TryGetValue("X-Tenant-ID", out var tenantIdValues))
+        if (!context.Request.Headers.TryGetValue("X-Tenant-ID", out var tenantIdValues))
         {
-            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await httpContext.Response.WriteAsync("Missing X-Tenant-ID header.");
+            _logger.LogWarning("Request missing X-Tenant-ID header. Path: {Path}", context.Request.Path);
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Missing X-Tenant-ID header.");
             return;
         }
 
         var tenantId = tenantIdValues.ToString();
 
-        if (string.IsNullOrWhiteSpace(tenantId) || !_tenantOptions.Value.ContainsKey(tenantId))
+        if (string.IsNullOrWhiteSpace(tenantId) || !_tenantOptions.Value.TryGetValue(tenantId, out var settings))
         {
-            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await httpContext.Response.WriteAsync("Invalid or unknown tenant.");
+            _logger.LogWarning("Invalid or unknown tenant '{TenantId}'. Path: {Path}", tenantId, context.Request.Path);
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Invalid or unknown tenant.");
             return;
         }
 
-        httpContext.Items["TenantId"] = tenantId;
-        httpContext.Items["TenantSettings"] = _tenantOptions.Value[tenantId];
+        context.Items[TenantIdKey] = tenantId;
+        context.Items[TenantSettingsKey] = settings;
 
-        _logger.LogInformation("Tenant '{TenantId}' accessed {Path}", tenantId, httpContext.Request.Path);
-
-        await _next(httpContext);
+        _logger.LogInformation("Tenant '{TenantId}' resolved for path {Path}", tenantId, context.Request.Path);
+        await _next(context);
     }
 }
 

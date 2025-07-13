@@ -10,10 +10,13 @@ global using MultiTenantInventoryApi.Services;
 global using MultiTenantInventoryApi.Extensions;
 global using MultiTenantInventoryApi.Middlewares;
 global using AutoMapper;
-global using MultiTenantInventoryApi.Contracts.Requests;
-global using MultiTenantInventoryApi.Contracts.Responses;
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using MultiTenantInventoryApi.Routes;
+global using MultiTenantInventoryApi.Middleware;
+global using MultiTenantInventoryApi.Contracts;
+global using MultiTenantInventoryApi.Model.DTOs.Requests;
+global using MultiTenantInventoryApi.Model.DTOs.Responses;
+global using System.Text.Json;
 
 
 
