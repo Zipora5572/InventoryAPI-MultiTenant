@@ -9,7 +9,7 @@ public static class TenantsRoutes
 
         group.MapGet("", GetAll);
         group.MapPost("", Create);
-        group.MapDelete("{id:int}", Delete);
+        group.MapDelete("{id}", Delete);
 
         return app;
     }

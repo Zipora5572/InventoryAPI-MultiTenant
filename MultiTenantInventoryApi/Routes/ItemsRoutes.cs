@@ -5,7 +5,6 @@ public static class ItemRoutes
     public static IEndpointRouteBuilder MapItemRoutes(this IEndpointRouteBuilder app)
     {
         var itemsGroup = app.MapGroup("/api/items");
-
         itemsGroup.MapGet("", GetAll);
         itemsGroup.MapPost("", Create);
         itemsGroup.MapPost("{id}/checkout", Checkout);
@@ -13,7 +12,6 @@ public static class ItemRoutes
         itemsGroup.MapPut("{id}", Update);
         itemsGroup.MapDelete("{id}", SoftDelete);
         itemsGroup.MapGet("SpecialReport", SpecialReport);
-
         return app;
     }
 
@@ -51,7 +49,7 @@ public static class ItemRoutes
     }
 
 
-    static async Task<Results<Ok<ItemResponse>, BadRequest<string>>> Checkout(
+    static async Task<Results<Ok<ItemResponse>, BadRequest<string>,ForbidHttpResult>> Checkout(
         int id,
         CheckoutItemRequest request,
         IItemService itemService,

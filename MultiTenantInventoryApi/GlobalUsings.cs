@@ -18,6 +18,8 @@ global using MultiTenantInventoryApi.Model.DTOs.Requests;
 global using MultiTenantInventoryApi.Model.DTOs.Responses;
 global using System.Text.Json;
 global using MultiTenantInventoryApi.Contracts.IServices;
+global using MultiTenantInventoryApi.Hubs;
+global using Microsoft.AspNetCore.SignalR;
 
 
 

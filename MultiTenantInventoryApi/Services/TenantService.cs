@@ -1,10 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using MultiTenantInventoryApi.Contracts.IServices;
-using MultiTenantInventoryApi.Contracts.IRepositories;
-
-
-namespace MultiTenantInventoryApi.Services;
+﻿namespace MultiTenantInventoryApi.Services;
 
 public class TenantService(
     IRepositoryManager _repo,
