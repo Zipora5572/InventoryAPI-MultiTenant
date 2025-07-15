@@ -3,7 +3,8 @@
 public class ItemService(
     IRepositoryManager _repo,
     IMapper _mapper,
-    ILogger<ItemService> _logger
+    ILogger<ItemService> _logger,
+    InventoryBroadcaster _broadcaster 
 ) : IItemService
 {
     public async Task<ItemResponse> CreateItemAsync(string tenantId, CreateItemRequest request)
@@ -15,11 +16,49 @@ public class ItemService(
             await _repo.Items.AddAsync(item);
             await _repo.SaveAsync();
 
-            return _mapper.Map<ItemResponse>(item);
+            var response = _mapper.Map<ItemResponse>(item);
+            await _broadcaster.BroadcastItemAdded(response);
+
+            return response;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "CreateItemAsync failed for tenant {TenantId}", tenantId);
+            throw;
+        }
+    }
+
+    public async Task<ItemResponse?> UpdateItemAsync(string tenantId, int itemId, UpdateItemRequest request)
+    {
+        try
+        {
+            var item = await _repo.Items.GetByIdAsync(itemId);
+
+            if (item == null || item.TenantId != tenantId || !item.IsActive)
+            {
+                _logger.LogWarning("Update failed: item {ItemId} not found or inactive (tenant {TenantId})", itemId, tenantId);
+                return null;
+            }
+
+            var updatedItem = item with
+            {
+                Name = request.Name ?? item.Name,
+                Category = request.Category ?? item.Category,
+            };
+
+            await _repo.Items.UpdateAsync(itemId, updatedItem);
+            await _repo.SaveAsync();
+
+            _logger.LogInformation("Update success: item {ItemId} updated (tenant {TenantId})", itemId, tenantId);
+
+            var response = _mapper.Map<ItemResponse>(updatedItem);
+            await _broadcaster.BroadcastItemUpdated(response); 
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "UpdateItemAsync failed for item {ItemId}, tenant {TenantId}", itemId, tenantId);
             throw;
         }
     }
@@ -53,27 +92,9 @@ public class ItemService(
             }
 
             var item = await _repo.Items.GetByIdAsync(itemId);
-            if (item == null)
+            if (item == null || item.TenantId != tenantId || !item.IsActive || item.IsCheckedOut)
             {
-                _logger.LogWarning("Checkout validation failed: item {ItemId} not found (tenant {TenantId})", itemId, tenantId);
-                return null;
-            }
-
-            if (item.TenantId != tenantId)
-            {
-                _logger.LogWarning("Checkout validation failed: tenant mismatch for item {ItemId}. Expected {TenantId}, found {ActualTenantId}", itemId, tenantId, item.TenantId);
-                return null;
-            }
-
-            if (!item.IsActive)
-            {
-                _logger.LogWarning("Checkout validation failed: item {ItemId} is not active (tenant {TenantId})", itemId, tenantId);
-                return null;
-            }
-
-            if (item.IsCheckedOut)
-            {
-                _logger.LogWarning("Checkout validation failed: item {ItemId} already checked out (tenant {TenantId})", itemId, tenantId);
+                _logger.LogWarning("Checkout validation failed for item {ItemId} (tenant {TenantId})", itemId, tenantId);
                 return null;
             }
 
@@ -100,7 +121,11 @@ public class ItemService(
             await _repo.SaveAsync();
 
             _logger.LogInformation("Checkout success: item {ItemId} checked out by {Username} (tenant {TenantId})", itemId, request.Username, tenantId);
-            return _mapper.Map<ItemResponse>(updatedItem);
+
+            var response = _mapper.Map<ItemResponse>(updatedItem);
+            await _broadcaster.BroadcastItemUpdated(response); 
+
+            return response;
         }
         catch (Exception ex)
         {
@@ -132,7 +157,11 @@ public class ItemService(
             await _repo.SaveAsync();
 
             _logger.LogInformation("Checkin success: item {ItemId} returned by {Username} (tenant {TenantId})", itemId, request.Username, tenantId);
-            return _mapper.Map<ItemResponse>(updatedItem);
+
+            var response = _mapper.Map<ItemResponse>(updatedItem);
+            await _broadcaster.BroadcastItemUpdated(response); 
+
+            return response;
         }
         catch (Exception ex)
         {
@@ -146,25 +175,20 @@ public class ItemService(
         try
         {
             var item = await _repo.Items.GetByIdAsync(itemId);
-
-            if (item == null)
+            if (item == null || item.TenantId != tenantId)
             {
-                _logger.LogWarning("SoftDelete validation failed: item {ItemId} not found (tenant {TenantId})", itemId, tenantId);
-                return false;
-            }
-
-            if (item.TenantId != tenantId)
-            {
-                _logger.LogWarning("SoftDelete validation failed: tenant mismatch for item {ItemId}. Expected {TenantId}, found {ActualTenantId}",
-                    itemId, tenantId, item.TenantId);
+                _logger.LogWarning("SoftDelete validation failed: item {ItemId} not found or mismatched tenant (tenant {TenantId})", itemId, tenantId);
                 return false;
             }
 
             var updatedItem = item with { IsActive = false };
+
             await _repo.Items.UpdateAsync(itemId, updatedItem);
             await _repo.SaveAsync();
 
             _logger.LogInformation("SoftDelete success: item {ItemId} marked inactive (tenant {TenantId})", itemId, tenantId);
+
+            await _broadcaster.BroadcastItemDeleted(itemId, tenantId); 
             return true;
         }
         catch (Exception ex)
