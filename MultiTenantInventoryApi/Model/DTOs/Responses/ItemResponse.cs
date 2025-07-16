@@ -5,5 +5,6 @@ public record ItemResponse(
     string Name,
     string Category,
     bool IsCheckedOut,
-    string? CheckedOutBy
+    string? CheckedOutBy,
+    string TenantId
 );

@@ -2,10 +2,13 @@
 
 public class RepositoryManager(
     DataContext _context,
-    IItemRepository itemRepository
+    IItemRepository itemRepository,
+    ITenantRepository tenantRepository
 ) : IRepositoryManager
 {
     public IItemRepository Items { get; } = itemRepository;
+
+    public ITenantRepository Tenants { get; } = tenantRepository;
 
     public async Task SaveAsync()
     {

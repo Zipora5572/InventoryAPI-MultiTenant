@@ -1,0 +1,27 @@
+@MultiTenantInventoryApi_HostAddress = http://localhost:5222
+
+### 
+GET {{MultiTenantInventoryApi_HostAddress}}/api/tenants
+
+
+### 
+POST {{MultiTenantInventoryApi_HostAddress}}/api/tenants
+Content-Type: application/json
+
+{
+  "id": 0,
+  "name": "beta-supply"
+}
+
+### 
+POST {{MultiTenantInventoryApi_HostAddress}}/api/tenants
+Content-Type: application/json
+
+{
+  "id": 0,
+  "name": "alpha-logistics"
+}
+
+
+### 
+DELETE {{MultiTenantInventoryApi_HostAddress}}/api/tenants/2

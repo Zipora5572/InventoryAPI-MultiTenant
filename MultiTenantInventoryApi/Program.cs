@@ -1,3 +1,4 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
@@ -21,6 +22,11 @@ app.UseErrorHandlingMiddleware();
 app.UseTenantResolutionMiddleware();
 
 app.MapItemRoutes();
+
+app.MapTenantRoutes();
+
+app.MapHub<InventoryHub>("/hubs/inventory");
+
 
 app.Run();
 

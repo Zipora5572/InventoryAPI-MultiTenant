@@ -10,6 +10,11 @@ public class TenantResolutionMiddleware(
 
     public async Task Invoke(HttpContext context)
     {
+        if (!context.Request.Path.StartsWithSegments("/api/items", StringComparison.OrdinalIgnoreCase))
+        {
+            await _next(context); 
+            return;
+        }
         if (!context.Request.Headers.TryGetValue("X-Tenant-ID", out var tenantIdValues))
         {
             _logger.LogWarning("Request missing X-Tenant-ID header. Path: {Path}", context.Request.Path);

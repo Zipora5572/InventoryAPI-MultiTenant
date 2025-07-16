@@ -17,6 +17,7 @@ public static class ServicesExtension
             o.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
             .AllowAnyMethod()
+           .AllowCredentials()
         ));
 
         builder.Services.AddDbContext<DataContext>(options =>
@@ -24,13 +25,19 @@ public static class ServicesExtension
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ITenantProvider, TenantProvider>();
-
-
         builder.Services.AddScoped<IItemService, ItemService>();
+        builder.Services.AddScoped<ITenantService, TenantService>();
         builder.Services.AddScoped<IItemRepository, ItemRepository>();
+        builder.Services.AddScoped<ITenantRepository, TenantRepository>();
         builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+        builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+
+        builder.Services.AddScoped<IInventoryBroadcaster, InventoryBroadcaster>();
+
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
+        builder.Services.AddSignalR();
 
         return builder;
     }
