@@ -25,6 +25,8 @@ public static class ServicesExtension
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+        builder.Services.AddScoped<IConnectionProvider, ConnectionProvider>();
+
         builder.Services.AddScoped<IItemService, ItemService>();
         builder.Services.AddScoped<ITenantService, TenantService>();
         builder.Services.AddScoped<IItemRepository, ItemRepository>();

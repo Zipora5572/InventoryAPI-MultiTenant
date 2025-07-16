@@ -1,10 +1,12 @@
-﻿namespace MultiTenantInventoryApi.Routes;
+﻿
+namespace MultiTenantInventoryApi.Routes;
 
 public static class ItemRoutes
 {
     public static IEndpointRouteBuilder MapItemRoutes(this IEndpointRouteBuilder app)
     {
         var itemsGroup = app.MapGroup("/api/items");
+
         itemsGroup.MapGet("", GetAll);
         itemsGroup.MapPost("", Create);
         itemsGroup.MapPut("{id}", Update);
@@ -29,10 +31,10 @@ public static class ItemRoutes
         CreateItemRequest request,
         IItemService itemService,
         ITenantProvider tenantProvider,
-        HttpContext context)
+        IConnectionProvider connectionProvider)
     {
         var tenantId = tenantProvider.TenantId;
-        var connectionId = context.Request.Headers["X-Connection-Id"].ToString();
+        var connectionId = connectionProvider.ConnectionId;
 
         var response = await itemService.CreateItemAsync(tenantId, request, connectionId);
         return TypedResults.Created($"/api/items/{response.Id}", response);
@@ -43,10 +45,10 @@ public static class ItemRoutes
         UpdateItemRequest request,
         IItemService itemService,
         ITenantProvider tenantProvider,
-        HttpContext context)
+        IConnectionProvider connectionProvider)
     {
         var tenantId = tenantProvider.TenantId;
-        var connectionId = context.Request.Headers["X-Connection-Id"].ToString();
+        var connectionId = connectionProvider.ConnectionId;
 
         var updated = await itemService.UpdateItemAsync(tenantId, id, request, connectionId);
 
@@ -60,10 +62,10 @@ public static class ItemRoutes
         CheckinItemRequest request,
         IItemService itemService,
         ITenantProvider tenantProvider,
-        HttpContext context)
+        IConnectionProvider connectionProvider)
     {
         var tenantId = tenantProvider.TenantId;
-        var connectionId = context.Request.Headers["X-Connection-Id"].ToString();
+        var connectionId = connectionProvider.ConnectionId;
 
         var result = await itemService.CheckinItemAsync(tenantId, id, request, connectionId);
 
@@ -77,11 +79,11 @@ public static class ItemRoutes
         CheckoutItemRequest request,
         IItemService itemService,
         ITenantProvider tenantProvider,
-        HttpContext context)
+        IConnectionProvider connectionProvider)
     {
         var tenantId = tenantProvider.TenantId;
         var settings = tenantProvider.Settings;
-        var connectionId = context.Request.Headers["X-Connection-Id"].ToString();
+        var connectionId = connectionProvider.ConnectionId;
 
         var result = await itemService.CheckoutItemAsync(tenantId, id, request, settings, connectionId);
 
@@ -94,10 +96,10 @@ public static class ItemRoutes
         int id,
         IItemService itemService,
         ITenantProvider tenantProvider,
-        HttpContext context)
+        IConnectionProvider connectionProvider)
     {
         var tenantId = tenantProvider.TenantId;
-        var connectionId = context.Request.Headers["X-Connection-Id"].ToString();
+        var connectionId = connectionProvider.ConnectionId;
 
         var deleted = await itemService.SoftDeleteItemAsync(tenantId, id, connectionId);
         return deleted
