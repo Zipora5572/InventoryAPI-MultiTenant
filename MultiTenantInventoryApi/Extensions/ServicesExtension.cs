@@ -30,8 +30,10 @@ public static class ServicesExtension
         builder.Services.AddScoped<IItemRepository, ItemRepository>();
         builder.Services.AddScoped<ITenantRepository, TenantRepository>();
         builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+        builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 
-        builder.Services.AddSingleton<InventoryBroadcaster>();
+        builder.Services.AddScoped<IInventoryBroadcaster, InventoryBroadcaster>();
+
 
         builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 

@@ -4,10 +4,10 @@ public class ItemService(
     IRepositoryManager _repo,
     IMapper _mapper,
     ILogger<ItemService> _logger,
-    InventoryBroadcaster _broadcaster 
+    IInventoryBroadcaster _broadcaster
 ) : IItemService
 {
-    public async Task<ItemResponse> CreateItemAsync(string tenantId, CreateItemRequest request)
+    public async Task<ItemResponse> CreateItemAsync(string tenantId, CreateItemRequest request, string? connectionId = null)
     {
         try
         {
@@ -17,7 +17,7 @@ public class ItemService(
             await _repo.SaveAsync();
 
             var response = _mapper.Map<ItemResponse>(item);
-            await _broadcaster.BroadcastItemAdded(response);
+            await _broadcaster.BroadcastItemAdded(response, connectionId);
 
             return response;
         }
@@ -28,7 +28,7 @@ public class ItemService(
         }
     }
 
-    public async Task<ItemResponse?> UpdateItemAsync(string tenantId, int itemId, UpdateItemRequest request)
+    public async Task<ItemResponse?> UpdateItemAsync(string tenantId, int itemId, UpdateItemRequest request, string? connectionId = null)
     {
         try
         {
@@ -52,7 +52,7 @@ public class ItemService(
             _logger.LogInformation("Update success: item {ItemId} updated (tenant {TenantId})", itemId, tenantId);
 
             var response = _mapper.Map<ItemResponse>(updatedItem);
-            await _broadcaster.BroadcastItemUpdated(response); 
+            await _broadcaster.BroadcastItemUpdated(response, connectionId);
 
             return response;
         }
@@ -81,7 +81,7 @@ public class ItemService(
         }
     }
 
-    public async Task<ItemResponse?> CheckoutItemAsync(string tenantId, int itemId, CheckoutItemRequest request, TenantSettings settings)
+    public async Task<ItemResponse?> CheckoutItemAsync(string tenantId, int itemId, CheckoutItemRequest request, TenantSettings settings, string? connectionId = null)
     {
         try
         {
@@ -123,7 +123,7 @@ public class ItemService(
             _logger.LogInformation("Checkout success: item {ItemId} checked out by {Username} (tenant {TenantId})", itemId, request.Username, tenantId);
 
             var response = _mapper.Map<ItemResponse>(updatedItem);
-            await _broadcaster.BroadcastItemUpdated(response); 
+            await _broadcaster.BroadcastItemUpdated(response, connectionId);
 
             return response;
         }
@@ -134,7 +134,7 @@ public class ItemService(
         }
     }
 
-    public async Task<ItemResponse?> CheckinItemAsync(string tenantId, int itemId, CheckinItemRequest request)
+    public async Task<ItemResponse?> CheckinItemAsync(string tenantId, int itemId, CheckinItemRequest request, string? connectionId = null)
     {
         try
         {
@@ -159,7 +159,7 @@ public class ItemService(
             _logger.LogInformation("Checkin success: item {ItemId} returned by {Username} (tenant {TenantId})", itemId, request.Username, tenantId);
 
             var response = _mapper.Map<ItemResponse>(updatedItem);
-            await _broadcaster.BroadcastItemUpdated(response); 
+            await _broadcaster.BroadcastItemUpdated(response, connectionId);
 
             return response;
         }
@@ -170,7 +170,7 @@ public class ItemService(
         }
     }
 
-    public async Task<bool> SoftDeleteItemAsync(string tenantId, int itemId)
+    public async Task<bool> SoftDeleteItemAsync(string tenantId, int itemId, string? connectionId = null)
     {
         try
         {
@@ -188,7 +188,7 @@ public class ItemService(
 
             _logger.LogInformation("SoftDelete success: item {ItemId} marked inactive (tenant {TenantId})", itemId, tenantId);
 
-            await _broadcaster.BroadcastItemDeleted(itemId, tenantId); 
+            await _broadcaster.BroadcastItemDeleted(itemId, tenantId, connectionId);
             return true;
         }
         catch (Exception ex)
